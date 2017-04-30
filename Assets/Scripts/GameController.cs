@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class GameController : MonoBehaviour {
 
@@ -8,13 +9,24 @@ public class GameController : MonoBehaviour {
 
     private GameObject[,] fieldArray = new GameObject[fieldSize, fieldSize];
     private int[,] shipArray = new int[fieldSize, fieldSize];
+    private int[,] shipArrayDes = new int[fieldSize, fieldSize];
     private int[] ships = new int[] {5, 4, 3, 3, 2};
-    private Color background = new Color(255,0,255);
-    private Color playerOne = new Color(0, 0, 255);
-    private Color playerTwo = new Color(255, 0, 0);
+    public Material background;
+    public Material playerOne;
+    public Material playerTwo;
     private bool missingShip = false;
 
     public GameObject block;
+    public Material notFound;
+
+    private Material found;
+    public Text playerOneText;
+    public Text playerTwoText;
+    public Text destroyedText;
+    public Material hitShipP1;
+    public Material hitShipP2;
+
+    private int currentPlayer = 1;
 
     // Use this for initialization
     void Start () {
@@ -37,6 +49,8 @@ public class GameController : MonoBehaviour {
         {
             Debug.Log("Couldnt create Game");
         }
+        shipArrayDes = (int[,])shipArray.Clone();
+
     }
 
     void fieldInit()
@@ -52,14 +66,14 @@ public class GameController : MonoBehaviour {
                 }
                 if (shipArray[i, e] == 0)
                 {
-                    cube.GetComponent<Renderer>().material.color = background;
+                    cube.GetComponent<Renderer>().material = background;
                 } else if (shipArray[i,e] == 1)
                 {
-                    cube.GetComponent<Renderer>().material.color = playerOne;
+                    cube.GetComponent<Renderer>().material = playerOne;
                 }
                 else
                 {
-                    cube.GetComponent<Renderer>().material.color = playerTwo;
+                    cube.GetComponent<Renderer>().material = playerTwo;
                 }
                 cube.transform.position = new Vector3(i ,e ,0);
                 fieldArray[i, e] = cube;
@@ -182,4 +196,76 @@ public class GameController : MonoBehaviour {
 	void Update () {
 		
 	}
+
+
+
+    private void FixedUpdate()
+    {
+        Touch touch = Input.touches[0];
+        if(touch.phase == TouchPhase.Began)
+        {
+            Ray ray = Camera.main.ScreenPointToRay(touch.position);
+            RaycastHit hit;
+            if(Physics.Raycast(ray,out hit))
+            {
+                Debug.Log(hit.transform.gameObject.name);
+                for (int i = 0; i < fieldArray.GetLength(1); ++i)
+                {
+                    for (int e = 0; e < fieldArray.GetLength(0); ++e)
+                    {
+                        if (fieldArray[i, e] == hit.transform.gameObject)
+                        {
+                            if (shipArray[i, e] == 0)
+                            {
+                                notFound.color = background.color;
+                                hit.transform.gameObject.GetComponent<Renderer>().material = notFound;
+                            }else if(shipArray[i,e] != currentPlayer)
+                            {
+                                shipArrayDes[i, e] = currentPlayer == 1 ? 3 : 4;
+                                found = currentPlayer == 1?hitShipP1:hitShipP2;
+                                hit.transform.gameObject.GetComponent<Renderer>().material = found;
+                                detectDestroyedShips();
+                                continue;
+                            }
+                            else
+                            {
+                                continue;
+                            }
+                            currentPlayer = currentPlayer == 1 ? 2 : 1;
+                            playerOneText.text = currentPlayer == 1 ? "-->Spieler 1" : "Spieler 1";
+                            playerTwoText.text = currentPlayer == 2 ? "-->Spieler 2" : "Spieler 2";
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    private void detectDestroyedShips()
+    {
+        int countedPlayerOneShipParts = 0;
+        int countedPlayerTwoShipParts = 0;
+        for(int i = 0; i < shipArrayDes.GetLength(0); ++i){
+            for(int e = 0; e < shipArrayDes.GetLength(1); ++e)
+            {
+                if(shipArrayDes[i,e] == 1)
+                {
+                    ++countedPlayerOneShipParts;
+                }else if (shipArrayDes[i,e] == 2)
+                {
+                    ++countedPlayerTwoShipParts;
+                }
+            }
+        }
+        destroyedText.text = "Schiffe Spieler 1:"+countedPlayerOneShipParts+" Schiffe Spieler 2:"+countedPlayerTwoShipParts ;
+        if (countedPlayerOneShipParts == 0)
+        {
+            destroyedText.text = "Spieler 2 gewinnt";
+        }
+        if(countedPlayerTwoShipParts == 0)
+        {
+            destroyedText.text = "Spieler 1 gewinnt";
+        }
+    }
+
 }
