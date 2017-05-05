@@ -219,7 +219,8 @@ public class GameController : MonoBehaviour {
                             {
                                 notFound.color = background.color;
                                 hit.transform.gameObject.GetComponent<Renderer>().material = notFound;
-                            }else if(shipArray[i,e] != currentPlayer)
+                            }
+                            else if(shipArray[i,e] != currentPlayer)
                             {
                                 shipArrayDes[i, e] = currentPlayer == 1 ? 3 : 4;
                                 found = currentPlayer == 1?hitShipP1:hitShipP2;
