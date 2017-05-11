@@ -4,17 +4,17 @@ using UnityEngine;
 
 public class changeTex : MonoBehaviour {
 
-    public Texture noiseOne;
-    public Texture noiseTwo;
+    public Texture[] noise;
+	private int currentNoise = 0;
+	private int maxNoise = 0;
 
     private float saved = 0f;
-    private bool currentTex = false;
 
     public bool isChanging = true;
 
 	// Use this for initialization
 	void Start () {
-		
+		maxNoise = noise.Length;
 	}
 	
 	// Update is called once per frame
@@ -23,18 +23,12 @@ public class changeTex : MonoBehaviour {
         {
             enabled = false;
         }
-		if(saved + 0.1f < Time.fixedTime)
+		if(saved + 0.01f < Time.fixedTime)
         {
             saved = Time.fixedTime;
-            if (currentTex)
-            {
-                GetComponent<Renderer>().material.SetTexture("_MainTex",noiseOne);
-            }
-            else
-            {
-                GetComponent<Renderer>().material.SetTexture("_MainTex", noiseTwo);
-            }
-            currentTex = !currentTex;
+
+			GetComponent<Renderer>().material.SetTexture("_MainTex",noise[currentNoise]);
+			currentNoise = (currentNoise + 1) % maxNoise;
         }
 	}
 }
