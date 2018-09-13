@@ -26,7 +26,7 @@ public class GameController : MonoBehaviour {
     public Material hitShipP1;
     public Material hitShipP2;
 
-    private int currentPlayer = 1;
+    private int currentPlayer = 2;
 
     // Use this for initialization
     void Start () {
@@ -50,7 +50,9 @@ public class GameController : MonoBehaviour {
             Debug.Log("Couldnt create Game");
         }
         shipArrayDes = (int[,])shipArray.Clone();
-
+        currentPlayer = 2;
+        playerOneText.text = "-->Spieler 1";
+        playerTwoText.text = "Spieler 2";
     }
 
     void fieldInit()
@@ -219,6 +221,7 @@ public class GameController : MonoBehaviour {
                             {
                                 notFound.color = background.color;
                                 hit.transform.gameObject.GetComponent<Renderer>().material = notFound;
+                                hit.transform.gameObject.transform.position += new Vector3(0,0,-1);
                             }
                             else if(shipArray[i,e] != currentPlayer)
                             {
@@ -226,6 +229,7 @@ public class GameController : MonoBehaviour {
                                 found = currentPlayer == 1?hitShipP1:hitShipP2;
                                 hit.transform.gameObject.GetComponent<Renderer>().material = found;
                                 detectDestroyedShips();
+                                hit.transform.gameObject.transform.position += new Vector3(0, 0, -1);
                                 continue;
                             }
                             else
@@ -233,8 +237,8 @@ public class GameController : MonoBehaviour {
                                 continue;
                             }
                             currentPlayer = currentPlayer == 1 ? 2 : 1;
-                            playerOneText.text = currentPlayer == 1 ? "-->Spieler 1" : "Spieler 1";
-                            playerTwoText.text = currentPlayer == 2 ? "-->Spieler 2" : "Spieler 2";
+                            playerOneText.text = currentPlayer == 2 ? "-->Spieler 1" : "Spieler 1";
+                            playerTwoText.text = currentPlayer == 1 ? "-->Spieler 2" : "Spieler 2";
                         }
                     }
                 }
@@ -249,16 +253,16 @@ public class GameController : MonoBehaviour {
         for(int i = 0; i < shipArrayDes.GetLength(0); ++i){
             for(int e = 0; e < shipArrayDes.GetLength(1); ++e)
             {
-                if(shipArrayDes[i,e] == 1)
+                if(shipArrayDes[i,e] == 2)
                 {
                     ++countedPlayerOneShipParts;
-                }else if (shipArrayDes[i,e] == 2)
+                }else if (shipArrayDes[i,e] == 1)
                 {
                     ++countedPlayerTwoShipParts;
                 }
             }
         }
-        destroyedText.text = "Schiffe Spieler 1:"+countedPlayerOneShipParts+" Schiffe Spieler 2:"+countedPlayerTwoShipParts ;
+        //destroyedText.text = "Schiffe Spieler 1:"+countedPlayerOneShipParts+" Schiffe Spieler 2:"+countedPlayerTwoShipParts ;
         if (countedPlayerOneShipParts == 0)
         {
             destroyedText.text = "Spieler 2 gewinnt";
